@@ -2,7 +2,6 @@
 ## 参数说明
 | 参数名 | 说明 | 例子 | 是否必填 | 参数类型 |
 |:-----|---|-----|:-----:|:-----:|
-|windowsWidth|屏幕宽度|通过用getSystemInfo获取|是|NumBer|
 |tabValue|Tab数组|["放入所需显示文字","测试"]|是| Array |
 |textColor|文字/下划线颜色|"#34b2fa"|否|String|
 |fontSize|字体大小|16|否|NumBer|
@@ -12,7 +11,7 @@
 
 > template
 
-	<lgd-tab :windowsWidth="windowsWidth" :tabValue="tabValue" @getIndex ="getIndex"/>
+	<lgd-tab :tabValue="tabValue" @getIndex ="getIndex"/>
 
 > script
 
@@ -22,7 +21,7 @@
 
 > template
 
-	<lgd-tab :windowsWidth="windowsWidth" :tabValue="tabValue" ref="tabs"/>
+	<lgd-tab :tabValue="tabValue" ref="tabs"/>
 
 > script
 

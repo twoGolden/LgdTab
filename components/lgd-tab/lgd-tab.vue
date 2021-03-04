@@ -16,11 +16,6 @@
 <script>
 	export default {
 		props: {
-			windowsWidth: { // 屏幕宽度
-				type: Number,
-				default: 0,
-				required: true
-			},
 			tabValue: { // tab数据
 				type: Array,
 				default: [],
@@ -37,6 +32,7 @@
 		},
 		data() {
 			return {
+				windowsWidth: 0,
 				boxLeft: 0,
 				isOutWindow: false,
 				inderWidth: 0,
@@ -78,8 +74,8 @@
 						}
 
 						// 是否需要居中
-						if (this.$props.windowsWidth / 2 < newLeft + width) {
-							this.scrollLeft = width / 2 - (this.$props.windowsWidth / 2 - newLeft)
+						if (this.windowsWidth / 2 < newLeft + width) {
+							this.scrollLeft = width / 2 - (this.windowsWidth / 2 - newLeft)
 						} else {
 							this.scrollLeft = 0
 						}
@@ -91,10 +87,19 @@
 				})
 			}
 		},
+		created() {
+			let that = this;
+			// 获取屏幕宽度
+			uni.getSystemInfo({
+				success(res) {
+					that.windowsWidth = res.windowWidth
+				}
+			})
+		},
 		mounted() {
 			// 判断tab是否超出屏幕
 			uni.createSelectorQuery().in(this).selectAll(".items").boundingClientRect().exec((data) => {
-				if (data[0][this.tabValue.length - 1].right > this.$props.windowsWidth) {
+				if (data[0][this.tabValue.length - 1].right > this.windowsWidth) {
 					this.isOutWindow = true
 				}
 			})
