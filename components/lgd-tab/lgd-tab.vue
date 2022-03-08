@@ -1,15 +1,18 @@
 <template>
 	<view>
-		<scroll-view class="scrollView" scroll-x show-scrollbar="false" :scroll-left="scrollLeft" scroll-with-animation>
-			<view class="tabBox" :style="{ 'justify-content': isOutWindow ? '' : 'space-around' }">
-				<view class="items" v-for="(item, index) in tabValue" :key="index" @click="clickTab(index)">
-					<text class="tabText" :class="index == tIndex ? 'active' : ''" :style="{ 'font-size': fontSize + 'px', color: index == tIndex ? textColor : ''}">
-						{{item}}
-					</text>
+		<view class="tabview">
+			<scroll-view class="scrollView" scroll-x show-scrollbar="false" :scroll-left="scrollLeft" scroll-with-animation style="height: 74rpx;">
+				<view class="tabBox" :style="{ 'justify-content': isOutWindow ? '' : 'space-around'}">
+					<view class="items" v-for="(item, index) in tabValue" :key="index" @click="clickTab(index)">
+						<view class="tabText" :class="index == tIndex ? 'active' : ''" :style="{ 'font-size': fontSize + 'px', color: index == tIndex ? textColor : ''}">
+							{{item}}
+						</view>
+					</view>
 				</view>
-			</view>
-			<view class="underscore" :style="{ width: inderWidth + 'px', 'margin-left': indexLeft + boxLeft + 'px', 'background-color': textColor, height: '3px' }" />
-		</scroll-view>
+				<view class="underscore" :style="{ width: inderWidth + 'px', 'margin-left': indexLeft + boxLeft + 'px', 'background-color': underlineColor }" />
+			</scroll-view>
+		</view>
+		<view class="gap" style="height: 74rpx;" :style="{'background-color': background }" />
 	</view>
 </template>
 
@@ -23,23 +26,42 @@
 			},
 			textColor: { // 颜色
 				type: String,
+				default: '#333'
+			},
+			underlineColor: {
+				type: String,
 				default: '#34b2fa'
 			},
 			fontSize: { // 字体大小
 				type: Number,
 				default: 16
+			},
+			background: {
+				type: String,
+				default: '#fff'
+			},
+			// 传入tab下标
+			tabIndex: {
+				type: Number,
+				default: 0
 			}
 		},
 		data() {
 			return {
-				windowsWidth: 0,
+				windowsWidth: 0, // 设备窗口大小
 				boxLeft: 0,
-				isOutWindow: false,
-				inderWidth: 0,
-				indexLeft: 0,
+				isOutWindow: false, // tab是否超出屏幕
+				inderWidth: 0, // 下划线宽度
+				indexLeft: 0, // 下划线距左边距离
 				scrollLeft: 0,
-				tIndex: 0,
+				tIndex: 0, // tab下标
 			};
+		},
+		watch: {
+			// 监听传入下标更改
+			tabIndex(newValue, oldValue) {
+				this.clickTab(newValue)
+			}
 		},
 		methods: {
 			clickTab(index) {
@@ -102,13 +124,21 @@
 				if (data[0][this.tabValue.length - 1].right > this.windowsWidth) {
 					this.isOutWindow = true
 				}
+				this.$nextTick(() => {
+					this.clickTab(this.tabIndex)
+				})
 			})
-			this.clickTab(0)
 		}
 	}
 </script>
 
 <style>
+	.tabview {
+		width: 100vw;
+		position: absolute;
+		left: 0;
+	}
+
 	.scrollView {
 		width: 100%;
 		white-space: nowrap;
@@ -120,7 +150,8 @@
 	}
 
 	.items {
-		padding: 6px 20rpx;
+		line-height: 60rpx;
+		padding: 0 20rpx;
 	}
 
 	.tabText {
@@ -132,6 +163,12 @@
 	}
 
 	.underscore {
+		height: 3px;
 		transition: .2s all;
+		border-radius: 6rpx;
+	}
+
+	/deep/.uni-scroll-view::-webkit-scrollbar {
+		display: none
 	}
 </style>
