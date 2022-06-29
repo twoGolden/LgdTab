@@ -17,6 +17,7 @@
 </template>
 
 <script>
+	let valueChange = false; // 值是否更改
 	export default {
 		props: {
 			tabValue: { // tab数据
@@ -58,12 +59,34 @@
 			};
 		},
 		watch: {
+			// 监听TAB内容更改
+			tabValue() {
+				valueChange = true
+				this.$nextTick(() => {
+					this.init()
+				})
+			},
 			// 监听传入下标更改
 			tabIndex(newValue, oldValue) {
-				this.clickTab(newValue)
+				if (!valueChange) this.clickTab(newValue)
 			}
 		},
 		methods: {
+			/// 初始化
+			init() {
+				let that = this;
+				// 判断tab是否超出屏幕
+				uni.createSelectorQuery().in(this).selectAll(".items").boundingClientRect().exec((data) => {
+					if (data[0][that.tabValue.length - 1].right > that.windowsWidth) {
+						that.isOutWindow = true
+					}
+					that.$nextTick(() => {
+						that.clickTab(that.tabIndex)
+					})
+				})
+			},
+			
+			/// 点击TAB
 			clickTab(index) {
 				// 更改选中下标
 				this.tIndex = index
@@ -83,18 +106,15 @@
 					let width = data[0][index].width
 					let left = data[0][index].left
 					let newLeft = 0
-
 					// tab超出屏幕
 					if (this.isOutWindow) {
 						if (index == 0) {
 							left = 0
 						}
-
 						// 防止移动后距离缩短问题
 						for (let i = 0; i < index; i++) {
 							newLeft += data[0][i].width
 						}
-
 						// 是否需要居中
 						if (this.windowsWidth / 2 < newLeft + width) {
 							this.scrollLeft = width / 2 - (this.windowsWidth / 2 - newLeft)
@@ -106,28 +126,16 @@
 					this.inderWidth = width / 2
 					// 移动距离
 					this.indexLeft = (width - width / 2) / 2 + left
+					// 重置
+					valueChange = false
 				})
 			}
 		},
-		created() {
-			let that = this;
-			// 获取屏幕宽度
-			uni.getSystemInfo({
-				success(res) {
-					that.windowsWidth = res.windowWidth
-				}
-			})
-		},
 		mounted() {
-			// 判断tab是否超出屏幕
-			uni.createSelectorQuery().in(this).selectAll(".items").boundingClientRect().exec((data) => {
-				if (data[0][this.tabValue.length - 1].right > this.windowsWidth) {
-					this.isOutWindow = true
-				}
-				this.$nextTick(() => {
-					this.clickTab(this.tabIndex)
-				})
-			})
+			// 获取屏幕宽度
+			this.windowsWidth = uni.getSystemInfoSync().windowWidth
+			// 初始化
+			this.init()
 		}
 	}
 </script>
